@@ -1,7 +1,7 @@
 
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword} from "firebase/auth";
+import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword ,signInWithEmailAndPassword} from "firebase/auth";
 
 import initalizeAuthnentiction from './FireBase/firebase.init';
 import { useState } from 'react';
@@ -12,7 +12,8 @@ const googleProvider = new GoogleAuthProvider();
 function App() {
   const [email , setEmail] = useState('');
   const [password , setPassword] = useState('');
-  const [error, setError] = useState()
+  const [error, setError] = useState('');
+  const [isLogin , setIsLogin] = useState(false)
 
   const auth = getAuth();
 
@@ -34,6 +35,10 @@ function App() {
     setPassword(e.target.value);
   };
 
+  const toggleLogIn = e =>{
+    setIsLogin(e.target.checked);
+  }
+
 
   const handleReg = e => {
     e.preventDefault()
@@ -48,13 +53,43 @@ function App() {
       setError('password must content 2 upperCase')
       return
     }
+
+    if(isLogin){
+      processLogin(email, password )
+    }else{
+      newUser(email, password)
+    }
+
+   
+
+  };
+
+  const processLogin = (email , password ) => {
+    signInWithEmailAndPassword(auth , email ,password )
+    .then(result => {
+      const user = result.user;
+      console.log(user);
+      setError(' ')
+   })
+
+   .catch(error =>{
+     setError(error.messages)
+   })
+  }
+
+  const newUser = (email ,password)=>{
     createUserWithEmailAndPassword(auth , email, password)
     .then(result => {
        const user = result.user;
        console.log(user);
+       setError(' ')
+    })
+
+    .catch(error =>{
+      setError(error.messages)
     })
   
-  };
+  }
 
   return (
     <div className="container ">
@@ -62,7 +97,8 @@ function App() {
       <div className="row my-5">
         <div className="col-6 mx-auto">
         <div className="py-3">
-        <h1 className="bg-info p-3  border fw-bold text-center"> Please Register Here </h1>
+        <h1 className="bg-info p-3  border fw-bold text-center"> 
+        {isLogin ? 'Login for  user' : 'Register for new account'} </h1>
         </div>
           <form onSubmit={handleReg}>
             <div className="row mb-3">
@@ -80,9 +116,9 @@ function App() {
             <div className="row mb-3">
               <div className="col-sm-10 offset-sm-2">
                 <div className="form-check">
-                  <input className="form-check-input" type="checkbox" id="gridCheck1" />
+                  <input onChange={toggleLogIn} className="form-check-input" type="checkbox" id="gridCheck1" />
                   <label className="form-check-label" htmlFor="gridCheck1">
-                   Have Account
+                   Already Register
                   </label>
                 </div>
               </div>
@@ -92,7 +128,9 @@ function App() {
                 {error}
               </small>
             </div>
-            <button  type="submit" className="btn btn-primary">Registration Here</button>
+            <button  type="submit" className="btn btn-primary">
+            {isLogin ? 'Login' : 'Register'} 
+              </button>
           </form>
         </div>
       </div>
