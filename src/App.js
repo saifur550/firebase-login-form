@@ -1,7 +1,7 @@
 
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword ,signInWithEmailAndPassword} from "firebase/auth";
+import { getAuth, signInWithPopup, GoogleAuthProvider, sendEmailVerification, createUserWithEmailAndPassword ,signInWithEmailAndPassword, sendPasswordResetEmail} from "firebase/auth";
 
 import initalizeAuthnentiction from './FireBase/firebase.init';
 import { useState } from 'react';
@@ -37,6 +37,12 @@ function App() {
 
   const toggleLogIn = e =>{
     setIsLogin(e.target.checked);
+  }
+
+
+  const handleResetPassword = ()=>{
+     sendPasswordResetEmail(auth ,email)
+     .then(result => {})
   }
 
 
@@ -82,7 +88,8 @@ function App() {
     .then(result => {
        const user = result.user;
        console.log(user);
-       setError(' ')
+       setError(' ');
+       verifyEmail()
     })
 
     .catch(error =>{
@@ -90,6 +97,17 @@ function App() {
     })
   
   }
+
+
+  const verifyEmail = ()=>{
+    sendEmailVerification(auth.currentUser)
+    .then(result => {
+      console.log(result);
+    })
+  }
+
+
+
 
   return (
     <div className="container ">
@@ -131,6 +149,7 @@ function App() {
             <button  type="submit" className="btn btn-primary">
             {isLogin ? 'Login' : 'Register'} 
               </button>
+              <button onClick ={handleResetPassword} className =" btn btn-sm bg-info p-2">Reset</button>
           </form>
         </div>
       </div>
